@@ -1,0 +1,311 @@
+/* ─── modals.css ─────────────────────────────────────────────────────────────
+   Modal system: overlay backdrop, modal shell, panel cards,
+   image contextual toolbar, and toast notification.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ══════════════════════════════════════════════════════
+   MODAL OVERLAY + SHELL
+   ══════════════════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+  backdrop-filter: blur(1px);
+}
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-panel);
+  width: 100%;
+  max-width: 380px;
+  overflow: hidden;
+  transform: translateY(8px) scale(0.98);
+  transition: transform 0.18s ease;
+}
+.modal-overlay.open .modal { transform: none; }
+
+.modal-header {
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modal-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+.modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px 5px;
+  border-radius: 4px;
+  transition: background 0.12s, color 0.12s;
+}
+.modal-close:hover { background: var(--surface2); color: var(--text); }
+
+.modal-body { padding: 18px; }
+
+/* ── Fields ──────────────────────────────── */
+.modal-field { margin-bottom: 14px; }
+.modal-field:last-child { margin-bottom: 0; }
+
+.modal-field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+  letter-spacing: 0.02em;
+}
+
+.modal-input,
+.modal-select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 11px;
+  font-size: 13px;
+  font-family: var(--font-ui);
+  background: var(--surface2);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.modal-input:focus,
+.modal-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+.modal-select { appearance: none; cursor: pointer; }
+
+.modal-row {
+  display: flex;
+  gap: 10px;
+}
+.modal-row .modal-field { flex: 1; }
+
+/* ── Checkbox row ────────────────────────── */
+.modal-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  padding: 4px 0;
+}
+.modal-check input[type="checkbox"] {
+  accent-color: var(--accent);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+/* ── Actions ─────────────────────────────── */
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.btn {
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 7px 16px;
+  font-size: 12.5px;
+  font-family: var(--font-ui);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.14s, border-color 0.14s, color 0.14s;
+  white-space: nowrap;
+}
+.btn:hover { background: var(--border); }
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover { filter: brightness(1.08); background: var(--accent); }
+
+.btn-danger {
+  background: transparent;
+  border-color: #c84040;
+  color: #c84040;
+}
+.btn-danger:hover { background: rgba(200,64,64,0.08); }
+
+/* ══════════════════════════════════════════════════════
+   FIND / REPLACE PANEL  (floating, non-blocking)
+   ══════════════════════════════════════════════════════ */
+#findPanel {
+  position: fixed;
+  top: calc(var(--titlebar-h) + var(--ribbon-h) + 12px);
+  right: 20px;
+  width: 300px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  box-shadow: var(--shadow-panel);
+  z-index: 400;
+  display: none;
+  transition: opacity 0.15s;
+}
+#findPanel.open { display: block; }
+
+#findPanel .panel-header {
+  padding: 11px 14px 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+#findPanel .panel-title {
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+}
+#findPanel .panel-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 15px;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+#findPanel .panel-close:hover { background: var(--surface2); }
+#findPanel .panel-body { padding: 13px 14px; }
+#findPanel .modal-field { margin-bottom: 10px; }
+#findPanel .modal-field label { font-size: 10.5px; }
+#findPanel .modal-input { font-size: 12.5px; padding: 6px 9px; }
+#findPanel .modal-actions { margin-top: 10px; padding-top: 10px; gap: 6px; }
+#findPanel .btn { padding: 5px 12px; font-size: 11.5px; }
+
+#findResultLabel {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  min-height: 14px;
+}
+
+/* ══════════════════════════════════════════════════════
+   IMAGE CONTEXTUAL TOOLBAR
+   ══════════════════════════════════════════════════════ */
+#imgToolbar {
+  position: fixed;
+  bottom: calc(var(--status-h) + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--chrome);
+  border: 1px solid var(--chrome-border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-panel);
+  padding: 7px 12px;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  z-index: 350;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+#imgToolbar.open { display: flex; }
+
+#imgToolbar label {
+  font-size: 10.5px;
+  color: var(--chrome-text-faint);
+  font-family: var(--font-ui);
+  flex-shrink: 0;
+}
+
+.it-btn {
+  background: var(--chrome-hover);
+  border: 1px solid var(--chrome-border);
+  color: var(--chrome-text-muted);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  flex-shrink: 0;
+}
+.it-btn:hover  { background: var(--chrome-active); color: var(--chrome-text); }
+.it-btn.active { background: var(--accent-hover); color: var(--accent); border-color: rgba(var(--accent-rgb),0.35); }
+.it-btn.danger { color: #c84040; border-color: rgba(200,64,64,0.3); }
+.it-btn.danger:hover { background: rgba(200,64,64,0.08); }
+
+.it-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--chrome-separator);
+  flex-shrink: 0;
+}
+
+#imgSizeInput {
+  width: 52px;
+  background: var(--chrome-hover);
+  border: 1px solid var(--chrome-border);
+  color: var(--chrome-text);
+  border-radius: 4px;
+  padding: 4px 6px;
+  font-size: 11.5px;
+  font-family: var(--font-ui);
+  outline: none;
+  text-align: center;
+  transition: border-color 0.12s;
+}
+#imgSizeInput:focus { border-color: var(--accent); }
+
+/* ══════════════════════════════════════════════════════
+   TOAST
+   ══════════════════════════════════════════════════════ */
+#toast {
+  position: fixed;
+  bottom: calc(var(--status-h) + 14px);
+  right: 20px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  padding: 9px 16px;
+  border-radius: 7px;
+  font-size: 12.5px;
+  font-family: var(--font-ui);
+  box-shadow: var(--shadow-panel);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+  z-index: 999;
+  max-width: 300px;
+}
+#toast.show { opacity: 1; transform: translateY(0); }

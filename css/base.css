@@ -1,0 +1,73 @@
+/* ─── base.css ───────────────────────────────────────────────────────────────
+   Reset, body layout, scrollbars, print, focus mode.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-ui);
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  transition: background 0.22s ease, color 0.22s ease;
+}
+
+/* ─── App regions ─── */
+#main {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Page scroll area ─── */
+#pageScroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 24px 80px;
+  scroll-behavior: smooth;
+  transition: background 0.22s, padding 0.3s;
+}
+
+/* Slim scrollbar */
+#pageScroll::-webkit-scrollbar         { width: 5px; }
+#pageScroll::-webkit-scrollbar-track   { background: transparent; }
+#pageScroll::-webkit-scrollbar-thumb   { background: var(--border-strong); border-radius: 3px; }
+
+/* ─── The paper "page" ─── */
+#page {
+  max-width: var(--page-w);
+  margin: 0 auto;
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  min-height: calc(100vh - var(--titlebar-h) - var(--ribbon-h) - var(--status-h) - 80px);
+  border-radius: 3px;
+  transition: background 0.22s, box-shadow 0.22s, max-width 0.25s;
+}
+
+/* ─── Focus / distraction-free mode ─── */
+body.focus-mode #ribbon      { display: none; }
+body.focus-mode #titlebar    { display: none; }
+body.focus-mode #pageScroll  { padding-top: 60px; }
+body.focus-mode #statusbar   { background: transparent; border-color: transparent; }
+body.focus-mode .stat        { opacity: 0; transition: opacity 0.3s; }
+body.focus-mode #statusbar:hover .stat { opacity: 1; }
+
+/* ─── Print ─── */
+@media print {
+  #ribbon, #titlebar, #statusbar,
+  .modal-overlay, #imgToolbar, #toast { display: none !important; }
+
+  #main         { overflow: visible; }
+  #pageScroll   { overflow: visible; padding: 0; }
+  #page         { box-shadow: none; max-width: 100%; margin: 0; border-radius: 0; }
+  #editor       { padding: 0; }
+  body          { background: white; }
+}

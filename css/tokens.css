@@ -1,0 +1,89 @@
+/* ─── tokens.css ─────────────────────────────────────────────────────────────
+   Design tokens: CSS custom properties for both light and dark themes.
+   Accent shifts from warm terracotta (light) to amber-gold (dark).
+   ─────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Surfaces */
+  --bg:             #edeae4;
+  --surface:        #ffffff;
+  --surface2:       #f5f3ef;
+  --chrome:         #f0ede8;          /* titlebar / ribbon / statusbar in light */
+  --chrome-border:  #d8d4cc;
+  --chrome-hover:   #e4e0d8;
+  --chrome-active:  #d8d3c8;
+
+  /* Text on chrome (light mode: dark text) */
+  --chrome-text:         #2a2520;
+  --chrome-text-muted:   #7a7268;
+  --chrome-text-faint:   #b0a898;
+  --chrome-separator:    rgba(0,0,0,0.08);
+
+  /* Editor text */
+  --text:           #1a1814;
+  --text-muted:     #7a7060;
+  --text-light:     #c0b8a8;
+
+  /* Accent — warm terracotta for light mode */
+  --accent:         #b85c28;
+  --accent-rgb:     184,92,40;
+  --accent-light:   rgba(184,92,40,0.10);
+  --accent-hover:   rgba(184,92,40,0.16);
+
+  /* Borders */
+  --border:         #dddad3;
+  --border-strong:  #c8c4bb;
+
+  /* Shadows */
+  --shadow:         0 1px 3px rgba(0,0,0,0.07), 0 4px 12px rgba(0,0,0,0.05);
+  --shadow-lg:      0 6px 28px rgba(0,0,0,0.12);
+  --shadow-panel:   0 8px 32px rgba(0,0,0,0.18);
+
+  /* Layout */
+  --page-w:         860px;
+  --titlebar-h:     36px;
+  --ribbon-h:       88px;
+  --status-h:       26px;
+
+  /* Typography */
+  --font-ui:        'DM Sans', system-ui, sans-serif;
+  --font-editor:    'Lora', Georgia, serif;
+  --font-mono:      'Fira Code', 'Courier New', monospace;
+}
+
+body.dark {
+  /* Surfaces */
+  --bg:             #111110;
+  --surface:        #1c1c1e;
+  --surface2:       #242423;
+  --chrome:         #151514;
+  --chrome-border:  rgba(255,255,255,0.07);
+  --chrome-hover:   rgba(255,255,255,0.06);
+  --chrome-active:  rgba(255,255,255,0.10);
+
+  /* Text on chrome (dark mode: light text) */
+  --chrome-text:         rgba(255,255,255,0.85);
+  --chrome-text-muted:   rgba(255,255,255,0.38);
+  --chrome-text-faint:   rgba(255,255,255,0.20);
+  --chrome-separator:    rgba(255,255,255,0.07);
+
+  /* Editor text */
+  --text:           #e6e2da;
+  --text-muted:     #6e6860;
+  --text-light:     #3e3a34;
+
+  /* Accent — amber-gold for dark mode */
+  --accent:         #d4922a;
+  --accent-rgb:     212,146,42;
+  --accent-light:   rgba(212,146,42,0.12);
+  --accent-hover:   rgba(212,146,42,0.18);
+
+  /* Borders */
+  --border:         #2a2926;
+  --border-strong:  #38362f;
+
+  /* Shadows */
+  --shadow:         0 1px 3px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
+  --shadow-lg:      0 6px 28px rgba(0,0,0,0.45);
+  --shadow-panel:   0 8px 32px rgba(0,0,0,0.55);
+}
