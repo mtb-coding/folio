@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Folio — Text Editor</title>
+
+<!-- External fonts & libraries -->
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://unpkg.com/turndown/dist/turndown.js"></script>
+
+<!-- Folio stylesheets (load order matters) -->
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/chrome.css">
+<link rel="stylesheet" href="css/editor.css">
+<link rel="stylesheet" href="css/modals.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TITLEBAR
+     ═══════════════════════════════════════════════════════════ -->
+<div id="titlebar">
+  <span class="logo">Folio</span>
+
+  <input type="text" id="docTitleInput"
+    value="Untitled Document"
+    spellcheck="false"
+    aria-label="Document title">
+
+  <div class="tb-actions">
+    <span id="saveStatus">All changes saved</span>
+    <button class="tb-btn" onclick="FileIO.saveHTML()"       title="Save as HTML (Ctrl+S)">⬇ Save</button>
+    <button class="tb-btn" onclick="FileIO.exportMarkdown()" title="Export as Markdown">↗ MD</button>
+    <button class="tb-btn" onclick="FileIO.exportText()"     title="Export as plain text">↗ TXT</button>
+    <button class="tb-btn" onclick="FileIO.print()"          title="Print (Ctrl+P)">⎙ Print</button>
+    <button class="tb-btn" onclick="View.toggleDark()"       id="darkBtn">◑ Dark</button>
+    <button class="tb-btn" onclick="View.toggleFocus()"      title="Focus mode">⤢ Focus</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     RIBBON
+     ═══════════════════════════════════════════════════════════ -->
+<div id="ribbon">
+
+  <!-- Tab strip -->
+  <div class="ribbon-tabs">
+    <div class="rtab active" onclick="View.switchTab('home')">Home</div>
+    <div class="rtab"        onclick="View.switchTab('insert')">Insert</div>
+    <div class="rtab"        onclick="View.switchTab('format')">Format</div>
+    <div class="rtab"        onclick="View.switchTab('view')">View</div>
+  </div>
+
+  <!-- ── HOME ───────────────────────────────────────────── -->
+  <div class="ribbon-panel active" id="tab-home">
+
+    <!-- Clipboard -->
+    <div class="rb-group">
+      <div class="rb-row">
+        <button class="rb rb-icon-text" onclick="Formatting.execCmd('undo')" title="Undo (Ctrl+Z)"><span class="ico">↩</span>Undo</button>
+        <button class="rb rb-icon-text" onclick="Formatting.execCmd('redo')" title="Redo (Ctrl+Y)"><span class="ico">↪</span>Redo</button>
+      </div>
+      <div class="rb-group-label">Clipboard</div>
+    </div>
+
+    <!-- Font -->
+    <div class="rb-group">
+      <div class="rb-row" style="gap:4px">
+        <select class="rb-select font-sel" onchange="Formatting.applyFont(this.value)" title="Font family">
+          <option value="">Font</option>
+          <optgroup label="Serif">
+            <option value="'Lora', Georgia, serif">Lora</option>
+            <option value="Georgia, serif">Georgia</option>
+            <option value="'Times New Roman', serif">Times New Roman</option>
+            <option value="'Palatino Linotype', serif">Palatino</option>
+          </optgroup>
+          <optgroup label="Sans-serif">
+            <option value="'DM Sans', sans-serif">DM Sans</option>
+            <option value="Arial, sans-serif">Arial</option>
+            <option value="Helvetica, sans-serif">Helvetica</option>
+            <option value="Verdana, sans-serif">Verdana</option>
+          </optgroup>
+          <optgroup label="Monospace">
+            <option value="'Fira Code', monospace">Fira Code</option>
+            <option value="'Courier New', monospace">Courier New</option>
+          </optgroup>
+        </select>
+        <select class="rb-select size-sel" onchange="Formatting.applySize(this.value)" title="Font size">
+          <option value="">Size</option>
+          <option value="10px">10</option>
+          <option value="11px">11</option>
+          <option value="12px">12</option>
+          <option value="14px">14</option>
+          <option value="16px">16</option>
+          <option value="18px">18</option>
+          <option value="20px">20</option>
+          <option value="24px">24</option>
+          <option value="28px">28</option>
+          <option value="32px">32</option>
+          <option value="36px">36</option>
+          <option value="48px">48</option>
+          <option value="60px">60</option>
+          <option value="72px">72</option>
+        </select>
+      </div>
+      <div class="rb-row" style="gap:3px">
+        <button class="rb rb-icon" id="btn-bold"          onclick="Formatting.fmtToggle('bold')"         title="Bold (Ctrl+B)"><b>B</b></button>
+        <button class="rb rb-icon" id="btn-italic"        onclick="Formatting.fmtToggle('italic')"       title="Italic (Ctrl+I)"><i>I</i></button>
+        <button class="rb rb-icon" id="btn-underline"     onclick="Formatting.fmtToggle('underline')"    title="Underline (Ctrl+U)"><u>U</u></button>
+        <button class="rb rb-icon" id="btn-strikeThrough" onclick="Formatting.fmtToggle('strikeThrough')" title="Strikethrough"><s>S</s></button>
+        <button class="rb rb-icon" onclick="Formatting.execCmd('subscript')"   title="Subscript"   style="font-size:11px">X<sub style="font-size:7px">2</sub></button>
+        <button class="rb rb-icon" onclick="Formatting.execCmd('superscript')" title="Superscript" style="font-size:11px">X<sup style="font-size:7px">2</sup></button>
+        <div class="rb-divider"></div>
+        <div class="color-wrap" title="Text colour">
+          <label>A</label>
+          <div class="color-swatch" id="fgSwatch" style="--swatch-color:#1a1a1a">
+            <input type="color" value="#1a1a1a" oninput="Formatting.applyForeColor(this.value)">
+            <div class="swatch-preview"></div>
+          </div>
+        </div>
+        <div class="color-wrap" title="Highlight colour">
+          <label>BG</label>
+          <div class="color-swatch" id="bgSwatch" style="--swatch-color:#fff176">
+            <input type="color" value="#fff176" oninput="Formatting.applyHiliteColor(this.value)">
+            <div class="swatch-preview"></div>
+          </div>
+        </div>
+        <div class="rb-divider"></div>
+        <button class="rb rb-icon" onclick="Formatting.clearFormat()" title="Clear formatting" style="font-size:12px">✕<sub style="font-size:7px">fmt</sub></button>
+      </div>
+      <div class="rb-group-label">Font</div>
+    </div>
+
+    <!-- Paragraph -->
+    <div class="rb-group">
+      <div class="rb-row">
+        <select class="rb-select" style="min-width:112px"
+          onchange="Formatting.applyHeading(this.value); this.selectedIndex=0;">
+          <option value="" selected disabled>Style</option>
+          <option value="p">Normal</option>
+          <option value="h1">Heading 1</option>
+          <option value="h2">Heading 2</option>
+          <option value="h3">Heading 3</option>
+          <option value="h4">Heading 4</option>
+          <option value="pre">Preformatted</option>
+        </select>
+      </div>
+      <div class="rb-row" style="gap:3px">
+        <button class="rb rb-icon" id="btn-justifyLeft"   onclick="Formatting.align('justifyLeft')"   title="Align left">⬛≡</button>
+        <button class="rb rb-icon" id="btn-justifyCenter" onclick="Formatting.align('justifyCenter')" title="Center">≡≡</button>
+        <button class="rb rb-icon" id="btn-justifyRight"  onclick="Formatting.align('justifyRight')"  title="Align right">≡⬛</button>
+        <button class="rb rb-icon" id="btn-justifyFull"   onclick="Formatting.align('justifyFull')"   title="Justify">☰</button>
+        <div class="rb-divider"></div>
+        <button class="rb rb-icon" onclick="Formatting.execCmd('insertUnorderedList')" title="Bullet list">•≡</button>
+        <button class="rb rb-icon" onclick="Formatting.execCmd('insertOrderedList')"   title="Numbered list">1≡</button>
+        <div class="rb-divider"></div>
+        <button class="rb rb-icon" onclick="Formatting.execCmd('indent')"  title="Indent">→</button>
+        <button class="rb rb-icon" onclick="Formatting.execCmd('outdent')" title="Outdent">←</button>
+      </div>
+      <div class="rb-group-label">Paragraph</div>
+    </div>
+
+    <!-- Editing -->
+    <div class="rb-group">
+      <div class="rb-row">
+        <button class="rb rb-icon-text" onclick="FindReplace.open()">    <span class="ico">⌕</span>Find</button>
+        <button class="rb rb-icon-text" onclick="Stats.openGoalModal()"> <span class="ico">◎</span>Goal</button>
+      </div>
+      <div class="rb-row">
+        <button class="rb rb-icon-text" onclick="FileIO.loadClick()">    <span class="ico">📂</span>Open</button>
+      </div>
+      <div class="rb-group-label">Editing</div>
+    </div>
+
+  </div><!-- /tab-home -->
+
+  <!-- ── INSERT ─────────────────────────────────────────── -->
+  <div class="ribbon-panel" id="tab-insert">
+
+    <div class="rb-group">
+      <div class="rb-row">
+        <button class="rb rb-icon-text" onclick="Insert.table()">                                        <span class="ico">⊞</span>Table</button>
+        <button class="rb rb-icon-text" onclick="Insert.image()">                                        <span class="ico">🖼</span>Image</button>
+        <button class="rb rb-icon-text" onclick="Insert.link()">                                         <span class="ico">🔗</span>Link</button>
+        <button class="rb rb-icon-text" onclick="Formatting.execCmd('unlink')">                          <span class="ico">⛓</span>Unlink</button>
+      </div>
+      <div class="rb-group-label">Objects</div>
+    </div>
+
+    <div class="rb-group">
+      <div class="rb-row">
+        <button class="rb rb-icon-text" onclick="Insert.codeBlock()">   <span class="ico">{ }</span>Code Block</button>
+        <button class="rb rb-icon-text" onclick="Insert.inlineCode()">  <span class="ico">`</span>Inline Code</button>
+        <button class="rb rb-icon-text" onclick="Insert.blockquote()">  <span class="ico">❝</span>Blockquote</button>
+      </div>
+      <div class="rb-group-label">Blocks</div>
+    </div>
+
+    <div class="rb-group">
+      <div class="rb-row">
+        <button class="rb rb-icon-text" onclick="Formatting.execCmd('insertHorizontalRule')"><span class="ico">—</span>Divider</button>
+        <button class="rb rb-icon-text" onclick="Insert.pageBreak()">                        <span class="ico">⊟</span>Page Break</button>
+      </div>
+      <div class="rb-group-label">Layout</div>
+    </div>
+
+    <div class="rb-group">
+      <div class="rb-row">
+        <select class="rb-select" style="min-width:155px"
+          onchange="Insert.symbol(this.value); this.selectedIndex=0;">
+          <option value="" disabled selected>Insert Symbol…</option>
+          <optgroup label="Math">
+            <option value="±">± Plus-minus</option>
+            <option value="×">× Multiply</option>
+            <option value="÷">÷ Divide</option>
+            <option value="≠">≠ Not equal</option>
+            <option value="≤">≤ Less/equal</option>
+            <option value="≥">≥ Greater/equal</option>
+            <option value="∞">∞ Infinity</option>
+            <option value="√">√ Square root</option>
+            <option value="∑">∑ Sum</option>
+            <option value="∫">∫ Integral</option>
+            <option value="π">π Pi</option>
+          </optgroup>
+          <optgroup label="Typography">
+            <option value="—">— Em dash</option>
+            <option value="–">– En dash</option>
+            <option value="…">… Ellipsis</option>
+            <option value="«">« Left guillemet</option>
+            <option value="»">» Right guillemet</option>
+            <option value="©">© Copyright</option>
+            <option value="®">® Registered</option>
+            <option value="™">™ Trademark</option>
+            <option value="°">° Degree</option>
+          </optgroup>
+          <optgroup label="Greek">
+            <option value="α">α Alpha</option>
+            <option value="β">β Beta</option>
+            <option value="γ">γ Gamma</option>
+            <option value="δ">δ Delta</option>
+            <option value="σ">σ Sigma</option>
+            <option value="λ">λ Lambda</option>
+            <option value="μ">μ Mu</option>
+            <option value="Ω">Ω Omega</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="rb-group-label">Symbols</div>
+    </div>
+
+  </div><!-- /tab-insert -->
+
+  <!-- ── FORMAT ─────────────────────────────────────────── -->
+  <div class="ribbon-panel" id="tab-format">
+
+    <div class="rb-group">
+      <div class="rb-row">
+        <select class="rb-select" style="min-width:138px"
+          onchange="Formatting.applyLineHeight(this.value); this.selectedIndex=0;">
+          <option value="" disabled selected>Line spacing…</option>
+          <option value="1.2">Compact (1.2)</option>
+          <option value="1.5">1.5 lines</option>
+          <option value="1.75">Default (1.75)</option>
+          <option value="2">Double (2.0)</option>
+          <option value="2.5">Spacious (2.5)</option>
+        </select>
+      </div>
+      <div class="rb-row">
+        <select class="rb-select" style="min-width:138px"
+          onchange="Formatting.applyLetterSpacing(this.value); this.selectedIndex=0;">
+          <option value="" disabled selected>Letter spacing…</option>
+          <option value="-0.03em">Tight</option>
+          <option value="0">Normal</option>
+          <option value="0.03em">Loose</option>
+          <option value="0.08em">Wide</option>
+          <option value="0.15em">Very wide</option>
+        </select>
+      </div>
+      <div class="rb-group-label">Spacing</div>
+    </div>
+
+    <div class="rb-group">
+      <div class="rb-row">
+        <button class="rb rb-icon-text" onclick="View.toggleSpellcheck()"> <span class="ico">✓</span>Spellcheck</button>
+      </div>
+      <div class="rb-row">
+        <button class="rb rb-icon-text" onclick="View.clearAll()">          <span class="ico">⌫</span>Clear All</button>
+      </div>
+      <div class="rb-group-label">Document</div>
+    </div>
+
+    <div class="rb-group">
+      <div class="rb-row">
+        <button class="rb rb-icon-text" onclick="View.toggleMarkdownPreview()"><span class="ico">👁</span>MD Preview</button>
+      </div>
+      <div class="rb-group-label">Preview</div>
+    </div>
+
+  </div><!-- /tab-format -->
+
+  <!-- ── VIEW ───────────────────────────────────────────── -->
+  <div class="ribbon-panel" id="tab-view">
+
+    <div class="rb-group">
+      <div class="rb-row">
+        <button class="rb rb-icon-text" onclick="View.toggleDark()"        id="darkBtnRibbon">   <span class="ico">◑</span>Dark Mode</button>
+        <button class="rb rb-icon-text" onclick="View.toggleFocus()">                             <span class="ico">⤢</span>Focus Mode</button>
+        <button class="rb rb-icon-text" onclick="View.toggleFullscreen()">                        <span class="ico">⛶</span>Fullscreen</button>
+      </div>
+      <div class="rb-group-label">Appearance</div>
+    </div>
+
+    <div class="rb-group">
+      <div class="rb-row">
+        <select class="rb-select" style="min-width:150px" onchange="View.setPageWidth(this.value)">
+          <option value="680px">Narrow (680 px)</option>
+          <option value="860px" selected>Standard (860 px)</option>
+          <option value="1020px">Wide (1020 px)</option>
+          <option value="100%">Full width</option>
+        </select>
+      </div>
+      <div class="rb-group-label">Page Width</div>
+    </div>
+
+    <div class="rb-group">
+      <div class="rb-row">
+        <select class="rb-select" style="min-width:145px" onchange="View.setEditorFont(this.value)">
+          <option value="'Lora', Georgia, serif">Serif — Lora</option>
+          <option value="'DM Sans', sans-serif">Sans-serif — DM Sans</option>
+          <option value="'Fira Code', monospace">Monospace — Fira Code</option>
+          <option value="Georgia, serif">Georgia</option>
+          <option value="'Times New Roman', serif">Times New Roman</option>
+        </select>
+      </div>
+      <div class="rb-group-label">Editor Font</div>
+    </div>
+
+  </div><!-- /tab-view -->
+
+</div><!-- /ribbon -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     MAIN — page scroll + paper canvas
+     ═══════════════════════════════════════════════════════════ -->
+<div id="main">
+  <div id="pageScroll">
+    <div id="page">
+      <div id="editor"
+        contenteditable="true"
+        spellcheck="true"
+        data-placeholder="Start writing…"
+        aria-label="Document editor"
+        aria-multiline="true"
+        role="textbox">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     STATUS BAR
+     ═══════════════════════════════════════════════════════════ -->
+<div id="statusbar">
+  <div class="stat"><span id="wc">0</span> words</div>
+  <div class="stat"><span id="cc">0</span> chars</div>
+  <div class="stat"><span id="lc">0</span> lines</div>
+  <div id="goalLabel">Goal: <span id="goalVal">—</span></div>
+  <div id="goalProgress"><div id="goalBar"></div></div>
+  <div class="stat-spacer"></div>
+  <div id="modeLabel">Edit</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     FIND / REPLACE PANEL  (floating, non-blocking)
+     ═══════════════════════════════════════════════════════════ -->
+<div id="findPanel">
+  <div class="panel-header">
+    <span class="panel-title">Find &amp; Replace</span>
+    <button class="panel-close" onclick="FindReplace.close()" aria-label="Close">✕</button>
+  </div>
+  <div class="panel-body">
+    <div class="modal-field">
+      <label for="findInput">Find</label>
+      <input class="modal-input" type="text" id="findInput"
+        placeholder="Search text…"
+        onkeydown="if(event.key==='Enter') FindReplace.findNext()">
+    </div>
+    <div class="modal-field">
+      <label for="replaceInput">Replace with</label>
+      <input class="modal-input" type="text" id="replaceInput"
+        placeholder="Replacement…">
+    </div>
+    <div id="findResultLabel"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="FindReplace.findNext()">Find Next</button>
+      <button class="btn" onclick="FindReplace.replace()">Replace</button>
+      <button class="btn btn-primary" onclick="FindReplace.replaceAll()">Replace All</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     IMAGE CONTEXTUAL TOOLBAR
+     ═══════════════════════════════════════════════════════════ -->
+<div id="imgToolbar">
+  <label>Wrap:</label>
+  <button class="it-btn active" id="iw-none"   onclick="Images.setWrap('none')">Inline</button>
+  <button class="it-btn"        id="iw-left"   onclick="Images.setWrap('left')">Float Left</button>
+  <button class="it-btn"        id="iw-right"  onclick="Images.setWrap('right')">Float Right</button>
+  <button class="it-btn"        id="iw-center" onclick="Images.setWrap('center')">Centre</button>
+  <div class="it-sep"></div>
+  <label>Width:</label>
+  <input type="number" id="imgSizeInput" value="100" min="10" max="100" step="5">
+  <label>%</label>
+  <div class="it-sep"></div>
+  <button class="it-btn"        onclick="Images.setAlt()">Alt text</button>
+  <button class="it-btn danger" onclick="Images.deleteImg()">Delete</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TOAST
+     ═══════════════════════════════════════════════════════════ -->
+<div id="toast" role="status" aria-live="polite"></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     HIDDEN FILE INPUTS
+     ═══════════════════════════════════════════════════════════ -->
+<input type="file" id="fileInput"  accept=".html,.txt,.md" onchange="FileIO.onFileLoad(event)" style="display:none">
+<input type="file" id="imageInput" accept="image/*"        onchange="Insert.onImageFile(event)" style="display:none">
+
+<!-- ═══════════════════════════════════════════════════════════
+     FOLIO SCRIPTS  (dependency order)
+     ═══════════════════════════════════════════════════════════ -->
+<script src="js/state.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/modals.js"></script>
+<script src="js/formatting.js"></script>
+<script src="js/insert.js"></script>
+<script src="js/images.js"></script>
+<script src="js/findreplace.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/fileio.js"></script>
+<script src="js/view.js"></script>
+<script src="js/shortcuts.js"></script>
+<script src="js/main.js"></script>
+
+</body>
+</html>
