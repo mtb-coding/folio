@@ -116,8 +116,8 @@
         <button class="rb rb-icon" id="btn-italic"        onclick="Formatting.fmtToggle('italic')"       title="Italic (Ctrl+I)"><i>I</i></button>
         <button class="rb rb-icon" id="btn-underline"     onclick="Formatting.fmtToggle('underline')"    title="Underline (Ctrl+U)"><u>U</u></button>
         <button class="rb rb-icon" id="btn-strikeThrough" onclick="Formatting.fmtToggle('strikeThrough')" title="Strikethrough"><s>S</s></button>
-        <button class="rb rb-icon" onclick="Formatting.execCmd('subscript')"   title="Subscript"   style="font-size:11px">X₂</button>
-        <button class="rb rb-icon" onclick="Formatting.execCmd('superscript')" title="Superscript" style="font-size:11px">X²</button>
+        <button class="rb rb-icon" onclick="Formatting.execCmd('subscript')"   title="Subscript"   style="font-size:11px">X<sub style="font-size:7px">2</sub></button>
+        <button class="rb rb-icon" onclick="Formatting.execCmd('superscript')" title="Superscript" style="font-size:11px">X<sup style="font-size:7px">2</sup></button>
         <div class="rb-divider"></div>
         <div class="color-wrap" title="Text colour">
           <label>A</label>
@@ -384,23 +384,26 @@
 <div id="findPanel">
   <div class="panel-header">
     <span class="panel-title">Find &amp; Replace</span>
-    <button class="panel-close" onclick="FindReplace.close()" aria-label="Close">✕</button>
+    <button class="panel-close" onclick="FindReplace.close()" aria-label="Close">&#x2715;</button>
   </div>
   <div class="panel-body">
     <div class="modal-field">
       <label for="findInput">Find</label>
       <input class="modal-input" type="text" id="findInput"
         placeholder="Search text…"
-        onkeydown="if(event.key==='Enter') FindReplace.findNext()">
+        oninput="FindReplace.onQueryInput()"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey) FindReplace.findNext(); else if(event.key==='Enter'&&event.shiftKey) FindReplace.findPrev();">
     </div>
     <div class="modal-field">
       <label for="replaceInput">Replace with</label>
       <input class="modal-input" type="text" id="replaceInput"
-        placeholder="Replacement…">
+        placeholder="Replacement…"
+        onkeydown="if(event.key==='Enter') FindReplace.replace();">
     </div>
     <div id="findResultLabel"></div>
-    <div class="modal-actions">
-      <button class="btn" onclick="FindReplace.findNext()">Find Next</button>
+    <div class="modal-actions" style="flex-wrap:wrap;gap:6px">
+      <button class="btn" onclick="FindReplace.findPrev()" title="Shift+Enter">← Prev</button>
+      <button class="btn" onclick="FindReplace.findNext()" title="Enter">Next →</button>
       <button class="btn" onclick="FindReplace.replace()">Replace</button>
       <button class="btn btn-primary" onclick="FindReplace.replaceAll()">Replace All</button>
     </div>
