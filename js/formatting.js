@@ -1,55 +1,55 @@
-// ─── formatting.js ────────────────────────────────────────────────────────────
+// - formatting.js -
 // All text-formatting commands: execCommand wrappers, font/size, alignment,
 // headings, color pickers, and format-button state tracking.
-// ─────────────────────────────────────────────────────────────────────────────
+// -
 
 const Formatting = (() => {
 
-  /* ── Base execCommand ─────────────────────────────────── */
+  /* - Base execCommand - */
   function execCmd(cmd, val = null) {
     Editor.el.focus();
     document.execCommand(cmd, false, val);
   }
 
-  /* ── Format toggle (bold / italic / etc.) ─────────────── */
+  /* - Format toggle (bold / italic / etc.) - */
   function fmtToggle(cmd) {
     execCmd(cmd);
     updateActiveButtons();
   }
 
-  /* ── Alignment ────────────────────────────────────────── */
+  /* - Alignment - */
   const ALIGN_CMDS = ['justifyLeft','justifyCenter','justifyRight','justifyFull'];
   function align(cmd) {
     execCmd(cmd);
     ALIGN_CMDS.forEach(c => {
-      document.getElementById('btn-' + c)?.classList.remove('active');
+      var _bc = document.getElementById('btn-' + c); if (_bc) _bc.classList.remove('active');
     });
-    document.getElementById('btn-' + cmd)?.classList.add('active');
+    var _ba = document.getElementById('btn-' + cmd); if (_ba) _ba.classList.add('active');
   }
 
-  /* ── Heading / block style ────────────────────────────── */
+  /* - Heading / block style - */
   function applyHeading(tag) {
     Editor.el.focus();
     document.execCommand('formatBlock', false, tag);
   }
 
-  /* ── Font family ──────────────────────────────────────── */
+  /* - Font family - */
   function applyFont(val) {
     if (!val) return;
     _wrapSelection(span => { span.style.fontFamily = val; });
   }
 
-  /* ── Font size ────────────────────────────────────────── */
+  /* - Font size - */
   function applySize(val) {
     if (!val) return;
     _wrapSelection(span => { span.style.fontSize = val; });
   }
 
-  /* ── Line height / letter spacing (whole editor) ──────── */
+  /* - Line height / letter spacing (whole editor) - */
   function applyLineHeight(val)     { Editor.el.style.lineHeight    = val; }
   function applyLetterSpacing(val)  { Editor.el.style.letterSpacing = val; }
 
-  /* ── Color commands ───────────────────────────────────── */
+  /* - Color commands - */
   function applyForeColor(val) {
     execCmd('foreColor', val);
     _updateSwatch('fgSwatch', val);
@@ -66,7 +66,7 @@ const Formatting = (() => {
     sw.querySelector('.swatch-preview').style.background = val;
   }
 
-  /* ── Wrap selection in a <span> ───────────────────────── */
+  /* - Wrap selection in a <span> - */
   function _wrapSelection(styleFn) {
     const sel = window.getSelection();
     if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
@@ -86,24 +86,23 @@ const Formatting = (() => {
     sel.addRange(r);
   }
 
-  /* ── Reflect active state on toolbar buttons ──────────── */
+  /* - Reflect active state on toolbar buttons - */
   const FMT_CMDS = ['bold','italic','underline','strikeThrough'];
   function updateActiveButtons() {
     FMT_CMDS.forEach(cmd => {
-      document.getElementById('btn-' + cmd)?.classList
-        .toggle('active', document.queryCommandState(cmd));
+      var _bt = document.getElementById('btn-' + cmd); if (_bt) _bt.classList.toggle('active', document.queryCommandState(cmd));
     });
   }
 
-  /* ── Set the whole editor's display font ──────────────── */
+  /* - Set the whole editor's display font - */
   function setEditorFont(val) { Editor.el.style.fontFamily = val; }
 
-  /* ── Page width ───────────────────────────────────────── */
+  /* - Page width - */
   function setPageWidth(val) {
     document.documentElement.style.setProperty('--page-w', val);
   }
 
-  /* ── Remove all formatting from selection ─────────────── */
+  /* - Remove all formatting from selection - */
   function clearFormat() { execCmd('removeFormat'); }
 
   return {

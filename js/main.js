@@ -1,6 +1,6 @@
-// ─── main.js ──────────────────────────────────────────────────────────────────
+// - main.js -
 // Entry point. Initialises all modules in dependency order.
-// ─────────────────────────────────────────────────────────────────────────────
+// -
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -18,8 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const mo = new MutationObserver(mutations => {
     mutations.forEach(m => m.addedNodes.forEach(node => {
       if (node.nodeType === 1) {
-        node.querySelectorAll?.('.code-block code[class*="language-"]')
-            .forEach(el => Prism.highlightElement(el));
+        if (node.querySelectorAll) node.querySelectorAll('.code-block code[class*="language-"]').forEach(function(el) { Prism.highlightElement(el); });
       }
     }));
   });

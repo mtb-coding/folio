@@ -1,7 +1,7 @@
-// ─── state.js ─────────────────────────────────────────────────────────────────
+// - state.js -
 // Central shared state and DOM references.
 // All modules import from here rather than querying the DOM repeatedly.
-// ─────────────────────────────────────────────────────────────────────────────
+// -
 
 const Editor = {
   // The contenteditable element
@@ -17,7 +17,7 @@ const Editor = {
   autoSaveTimer: null,
   toastTimer: null,
 
-  // Initialise reference — called once from main.js
+  // Initialise reference - called once from main.js
   init() {
     this.el = document.getElementById('editor');
   },

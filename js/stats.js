@@ -1,14 +1,14 @@
-// ─── stats.js ─────────────────────────────────────────────────────────────────
+// - stats.js -
 // Word / character / line statistics, word-count goal with progress bar,
 // and auto-save to localStorage.
-// ─────────────────────────────────────────────────────────────────────────────
+// -
 
 const Stats = (() => {
 
   const STORAGE_KEY = 'folio_content';
   let autoSaveTimer = null;
 
-  /* ── Update display ───────────────────────────────────── */
+  /* - Update display - */
   function update() {
     const text  = Editor.el.innerText || '';
     const words = text.trim() ? text.trim().split(/\s+/).length : 0;
@@ -31,7 +31,7 @@ const Stats = (() => {
       words >= Editor.wordCountGoal ? '#5dbf80' : 'var(--accent)';
   }
 
-  /* ── Set goal (via modal) ─────────────────────────────── */
+  /* - Set goal (via modal) - */
   function openGoalModal() {
     Modals.prompt({
       title: 'Word Count Goal',
@@ -63,7 +63,7 @@ const Stats = (() => {
     });
   }
 
-  /* ── Auto-save ────────────────────────────────────────── */
+  /* - Auto-save - */
   function setupAutoSave() {
     Editor.el.addEventListener('input', () => {
       update();
@@ -86,7 +86,7 @@ const Stats = (() => {
     el.className = 'saved';
   }
 
-  /* ── Restore session ──────────────────────────────────── */
+  /* - Restore session - */
   function tryRestore() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return;

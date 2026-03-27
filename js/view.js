@@ -1,15 +1,15 @@
-// ─── view.js ──────────────────────────────────────────────────────────────────
+// - view.js -
 // View & UI state: dark mode, focus mode, fullscreen, markdown preview,
 // ribbon tab switching, page-width, editor-font.
-// ─────────────────────────────────────────────────────────────────────────────
+// -
 
 const View = (() => {
 
-  /* ── Dark mode ────────────────────────────────────────── */
+  /* - Dark mode - */
   function toggleDark() {
     Editor.isDark = !Editor.isDark;
     document.body.classList.toggle('dark', Editor.isDark);
-    document.getElementById('darkBtn').textContent = Editor.isDark ? '☀ Light' : '◑ Dark';
+    document.getElementById('darkBtn').textContent = Editor.isDark ? '- Light' : '- Dark';
     localStorage.setItem('folio_dark', Editor.isDark ? '1' : '');
   }
 
@@ -17,27 +17,27 @@ const View = (() => {
     if (localStorage.getItem('folio_dark')) {
       Editor.isDark = true;
       document.body.classList.add('dark');
-      document.getElementById('darkBtn').textContent = '☀ Light';
+      document.getElementById('darkBtn').textContent = '- Light';
     }
   }
 
-  /* ── Focus mode ───────────────────────────────────────── */
+  /* - Focus mode - */
   function toggleFocus() {
     document.body.classList.toggle('focus-mode');
     const on = document.body.classList.contains('focus-mode');
-    Toast.show(on ? 'Focus mode — hover the status bar for stats' : 'Focus mode off');
+    Toast.show(on ? 'Focus mode - hover the status bar for stats' : 'Focus mode off');
   }
 
-  /* ── Fullscreen ───────────────────────────────────────── */
+  /* - Fullscreen - */
   function toggleFullscreen() {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen?.();
+      if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
     } else {
-      document.exitFullscreen?.();
+      if (document.exitFullscreen) document.exitFullscreen();
     }
   }
 
-  /* ── Markdown preview ─────────────────────────────────── */
+  /* - Markdown preview - */
   function toggleMarkdownPreview() {
     if (!Editor.isPreviewMode) {
       Editor.savedContent      = Editor.el.innerHTML;
@@ -45,7 +45,7 @@ const View = (() => {
       Editor.el.contentEditable = 'false';
       Editor.isPreviewMode     = true;
       document.getElementById('modeLabel').textContent = 'Preview';
-      Toast.show('Markdown preview active — click View → MD Preview to exit');
+      Toast.show('Markdown preview active - click View - MD Preview to exit');
     } else {
       Editor.el.innerHTML       = Editor.savedContent;
       Editor.el.contentEditable = 'true';
@@ -55,7 +55,7 @@ const View = (() => {
     }
   }
 
-  /* ── Clear all (with modal confirm) ──────────────────── */
+  /* - Clear all (with modal confirm) - */
   function clearAll() {
     Modals.confirm({
       title: 'Clear Document',
@@ -70,7 +70,7 @@ const View = (() => {
     });
   }
 
-  /* ── Ribbon tab switching ─────────────────────────────── */
+  /* - Ribbon tab switching - */
   const TABS = ['home','insert','format','view'];
 
   function switchTab(name) {
@@ -78,10 +78,10 @@ const View = (() => {
       t.classList.toggle('active', TABS[i] === name);
     });
     document.querySelectorAll('.ribbon-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('tab-' + name)?.classList.add('active');
+    var _tp = document.getElementById('tab-' + name); if (_tp) _tp.classList.add('active');
   }
 
-  /* ── Page width & editor font ─────────────────────────── */
+  /* - Page width & editor font - */
   function setPageWidth(val) {
     document.documentElement.style.setProperty('--page-w', val);
   }
@@ -90,7 +90,7 @@ const View = (() => {
     Editor.el.style.fontFamily = val;
   }
 
-  /* ── Spellcheck toggle ────────────────────────────────── */
+  /* - Spellcheck toggle - */
   function toggleSpellcheck() {
     const on = Editor.el.getAttribute('spellcheck') === 'true';
     Editor.el.setAttribute('spellcheck', String(!on));

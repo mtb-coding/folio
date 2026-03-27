@@ -1,15 +1,15 @@
-// ─── modals.js ────────────────────────────────────────────────────────────────
+// - modals.js -
 // Modal / dialog system.  Every browser prompt() or confirm() is replaced with
 // a proper in-editor modal.  API:
 //
 //   Modals.prompt({ title, fields:[{id,label,type,value,placeholder}], onConfirm })
 //   Modals.confirm({ title, message, confirmLabel, danger, onConfirm })
-//   Modals.open(id)   /  Modals.close(id)   — for persistent panels
-// ─────────────────────────────────────────────────────────────────────────────
+//   Modals.open(id)   /  Modals.close(id)   - for persistent panels
+// -
 
 const Modals = (() => {
 
-  /* ── Helpers ──────────────────────────────────────────── */
+  /* - Helpers - */
 
   function makeOverlay(id) {
     const ov = document.createElement('div');
@@ -41,7 +41,7 @@ const Modals = (() => {
     document.querySelectorAll('.modal-overlay.open').forEach(_close);
   }
 
-  /* ── Generic prompt modal ─────────────────────────────── */
+  /* - Generic prompt modal - */
   // options: { title, fields:[{id,label,type,value,placeholder,options}], confirmLabel, onConfirm }
   function prompt(options) {
     const id = 'prompt-' + Date.now();
@@ -81,7 +81,7 @@ const Modals = (() => {
       <div class="modal" role="dialog" aria-modal="true" aria-label="${options.title}">
         <div class="modal-header">
           <span class="modal-title">${options.title}</span>
-          <button class="modal-close" aria-label="Close">✕</button>
+          <button class="modal-close" aria-label="Close">-</button>
         </div>
         <div class="modal-body">
           ${fieldsHtml}
@@ -117,7 +117,7 @@ const Modals = (() => {
     _open(ov);
   }
 
-  /* ── Generic confirm modal ────────────────────────────── */
+  /* - Generic confirm modal - */
   // options: { title, message, confirmLabel, danger, onConfirm }
   function confirm(options) {
     const id = 'confirm-' + Date.now();
@@ -127,7 +127,7 @@ const Modals = (() => {
       <div class="modal" role="dialog" aria-modal="true">
         <div class="modal-header">
           <span class="modal-title">${options.title}</span>
-          <button class="modal-close" aria-label="Close">✕</button>
+          <button class="modal-close" aria-label="Close">-</button>
         </div>
         <div class="modal-body">
           <p style="font-size:13.5px;line-height:1.5;color:var(--text);margin-bottom:0">${options.message}</p>
@@ -155,9 +155,9 @@ const Modals = (() => {
     _open(ov);
   }
 
-  /* ── Persistent panel toggle (Find, etc.) ─────────────── */
-  function open(id)  { document.getElementById(id)?.classList.add('open'); }
-  function close(id) { document.getElementById(id)?.classList.remove('open'); }
+  /* - Persistent panel toggle (Find, etc.) - */
+  function open(id)  { var _e = document.getElementById(id); if (_e) _e.classList.add('open'); }
+  function close(id) { var _e = document.getElementById(id); if (_e) _e.classList.remove('open'); }
   function toggle(id) {
     const el = document.getElementById(id);
     if (el) el.classList.toggle('open');

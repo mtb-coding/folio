@@ -1,6 +1,6 @@
-// ─── toast.js ─────────────────────────────────────────────────────────────────
+// - toast.js -
 // Lightweight toast notification.  Call Toast.show('message').
-// ─────────────────────────────────────────────────────────────────────────────
+// -
 
 const Toast = (() => {
   let timer = null;

@@ -1,6 +1,6 @@
-// ─── fileio.js ────────────────────────────────────────────────────────────────
+// - fileio.js -
 // File I/O: save as HTML, export as Markdown, load file, print.
-// ─────────────────────────────────────────────────────────────────────────────
+// -
 
 const FileIO = (() => {
 
@@ -18,7 +18,7 @@ const FileIO = (() => {
     URL.revokeObjectURL(a.href);
   }
 
-  /* ── Save as HTML ─────────────────────────────────────── */
+  /* - Save as HTML - */
   function saveHTML() {
     const name = _docName();
     const html = `<!DOCTYPE html>
@@ -32,7 +32,7 @@ ${Editor.el.innerHTML}
     Toast.show('Saved as HTML');
   }
 
-  /* ── Export as Markdown ───────────────────────────────── */
+  /* - Export as Markdown - */
   function exportMarkdown() {
     const td = new TurndownService();
     const md = td.turndown(Editor.el.innerHTML);
@@ -40,13 +40,13 @@ ${Editor.el.innerHTML}
     Toast.show('Exported as Markdown');
   }
 
-  /* ── Export as plain text ─────────────────────────────── */
+  /* - Export as plain text - */
   function exportText() {
     _dlBlob(Editor.el.innerText, _docName() + '.txt', 'text/plain');
     Toast.show('Exported as plain text');
   }
 
-  /* ── Load file (HTML / txt / md) ──────────────────────── */
+  /* - Load file (HTML / txt / md) - */
   function loadClick() {
     document.getElementById('fileInput').click();
   }
@@ -65,7 +65,7 @@ ${Editor.el.innerHTML}
     reader.readAsText(file);
   }
 
-  /* ── Print ────────────────────────────────────────────── */
+  /* - Print - */
   function print() { window.print(); }
 
   return { saveHTML, exportMarkdown, exportText, loadClick, onFileLoad, print };

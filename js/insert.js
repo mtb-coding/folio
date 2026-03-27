@@ -1,12 +1,12 @@
-// ─── insert.js ────────────────────────────────────────────────────────────────
+// - insert.js -
 // All "Insert" operations: table, link, image, code block, inline code,
 // blockquote, page break, and symbol insertion.
-// Uses Modals.prompt() — no browser prompt() / confirm() calls.
-// ─────────────────────────────────────────────────────────────────────────────
+// Uses Modals.prompt() - no browser prompt() / confirm() calls.
+// -
 
 const Insert = (() => {
 
-  /* ── Helpers ──────────────────────────────────────────── */
+  /* - Helpers - */
   function exec(cmd, val = null) { Formatting.execCmd(cmd, val); }
 
   function saveRange() {
@@ -24,7 +24,7 @@ const Insert = (() => {
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
-  /* ── Table ────────────────────────────────────────────── */
+  /* - Table - */
   function table() {
     Modals.prompt({
       title: 'Insert Table',
@@ -53,7 +53,7 @@ const Insert = (() => {
     });
   }
 
-  /* ── Link ─────────────────────────────────────────────── */
+  /* - Link - */
   function link() {
     // Save selection before modal opens (async)
     const range = saveRange();
@@ -79,7 +79,7 @@ const Insert = (() => {
     });
   }
 
-  /* ── Image (file picker → inline base64) ─────────────── */
+  /* - Image (file picker - inline base64) - */
   function image() {
     document.getElementById('imageInput').click();
   }
@@ -91,13 +91,13 @@ const Insert = (() => {
     reader.onload = e => {
       Editor.el.focus();
       exec('insertHTML', `<img src="${e.target.result}" style="max-width:100%;" data-wrap="none"><p><br></p>`);
-      Toast.show('Image inserted — click to reposition & resize');
+      Toast.show('Image inserted - click to reposition & resize');
     };
     reader.readAsDataURL(file);
     event.target.value = '';
   }
 
-  /* ── Code block ───────────────────────────────────────── */
+  /* - Code block - */
   function codeBlock() {
     const sel = window.getSelection();
     const selectedText = (sel && !sel.isCollapsed) ? sel.toString() : '';
@@ -158,7 +158,7 @@ const Insert = (() => {
     });
   }
 
-  /* ── Inline code ──────────────────────────────────────── */
+  /* - Inline code - */
   function inlineCode() {
     const sel = window.getSelection();
     if (!sel || sel.rangeCount === 0) return;
@@ -174,7 +174,7 @@ const Insert = (() => {
     sel.addRange(range);
   }
 
-  /* ── Blockquote ───────────────────────────────────────── */
+  /* - Blockquote - */
   function blockquote() {
     const sel  = window.getSelection();
     const text = (sel && !sel.isCollapsed) ? sel.toString() : '';
@@ -182,20 +182,20 @@ const Insert = (() => {
     exec('insertHTML', `<blockquote>${escHtml(text) || '<br>'}</blockquote><p><br></p>`);
   }
 
-  /* ── Page break ───────────────────────────────────────── */
+  /* - Page break - */
   function pageBreak() {
     Editor.el.focus();
     exec('insertHTML', '<div class="page-break"></div><p><br></p>');
   }
 
-  /* ── Symbol ───────────────────────────────────────────── */
+  /* - Symbol - */
   function symbol(sym) {
     if (!sym) return;
     Editor.el.focus();
     exec('insertText', sym);
   }
 
-  /* ── Prism re-highlight ───────────────────────────────── */
+  /* - Prism re-highlight - */
   function rehighlight() {
     document.querySelectorAll('.code-block code[class*="language-"]')
       .forEach(el => Prism.highlightElement(el));
