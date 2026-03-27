@@ -1,7 +1,9 @@
 # Changes in v0.1.1
+(wip)
 
 ## Bugfixes
-- soon
+- Fixed some general syntax errors and cleaned up the code
+- Fixed ctrl+f functionality
 
 ## Improvements
 - soon
